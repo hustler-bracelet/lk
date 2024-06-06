@@ -12,7 +12,7 @@ from hustler_bracelet.enums import FinanceTransactionType
 class FinanceTransaction(SQLModel, AsyncAttrs, table=True):
     id: int | None = Field(primary_key=True)
     telegram_id: int = Field(sa_column=Column(BigInteger()))
-    type: FinanceTransactionType
+    type: str
     category: int = Field(foreign_key='category.id')
     value: float
     added_on: datetime

@@ -11,4 +11,4 @@ class Category(SQLModel, AsyncAttrs, table=True):
     id: int | None = Field(primary_key=True)
     telegram_id: int = Field(sa_column=Column(BigInteger()))
     name: str
-    type: FinanceTransactionType
+    type: str

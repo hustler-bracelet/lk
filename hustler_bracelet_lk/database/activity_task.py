@@ -14,4 +14,3 @@ class ActivityTask(SQLModel, AsyncAttrs, table=True):
     points: int
     added_on: datetime
     deadline: datetime
-    average_completion_time: float  # minutes
