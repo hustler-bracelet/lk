@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 from sqlalchemy import Column, BigInteger
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlmodel import SQLModel, Field

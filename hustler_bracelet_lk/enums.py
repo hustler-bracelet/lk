@@ -2,22 +2,22 @@ from enum import Enum
 
 
 class FinanceTransactionType(str, Enum):
-    INCOME = 'income'
-    SPENDING = 'spending'
+    INCOME = 'INCOME'
+    SPENDING = 'SPENDING'
 
 
-class CompletionStatus(str, Enum):
-    PENDING = 'pending'
-    VERIFIED = 'verified'
-    REJECTED = 'rejected'
+class TaskCompletionStatus(str, Enum):
+    PENDING = 'PENDING'
+    VERIFIED = 'VERIFIED'
+    REJECTED = 'REJECTED'
 
 
 class PayoutReason(str, Enum):
-    REFERRAL = 'referral'
-    ACTIVITY = 'activity'
-    OTHER = 'other'
+    REFERRAL = 'REFERRAL'
+    ACTIVITY = 'ACTIVITY'
+    OTHER = 'OTHER'
 
 
 class PaymentReason(str, Enum):
-    BRACELET = 'bracelet'
-    OTHER = 'other'
+    BRACELET = 'BRACELET'
+    OTHER = 'OTHER'
