@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import config
-from sqlalchemy.ext.asyncio import AsyncEngine
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from sqlalchemy import URL
-from sqlmodel import create_engine, SQLModel
+from sqlmodel import create_engine
 
 DATABASE_ENGINE = AsyncEngine(
     create_engine(
@@ -18,7 +18,8 @@ DATABASE_ENGINE = AsyncEngine(
         )
     )
 )
-# DATABASE_ENGINE = AsyncEngine(create_engine('sqlite+aiosqlite:///hustler_bracelet.sqlite'))
+
+DATABASE_SESSION = AsyncSession(DATABASE_ENGINE)
 
 
 async def create_all_tables() -> None:

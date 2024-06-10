@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import annotations
+
 from sqlalchemy import Column, BigInteger
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlmodel import SQLModel, Field
@@ -11,6 +13,6 @@ class User(SQLModel, AsyncAttrs, table=True):
     )
     telegram_name: str
     current_balance: float = Field(default=0.0)
-    referred_by: int = Field(sa_column=Column(BigInteger()))
+    referred_by: int | None = Field(sa_column=Column(BigInteger()), default=None)
     is_participating_in_activity: bool = Field(default=False)
-    selected_niche_id: int | None
+    selected_niche_id: int | None = Field(default=None)

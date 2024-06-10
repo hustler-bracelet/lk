@@ -6,18 +6,23 @@ class FinanceTransactionType(str, Enum):
     SPENDING = 'SPENDING'
 
 
-class TaskCompletionStatus(str, Enum):
+class CompletionStatus(str, Enum):
     PENDING = 'PENDING'
     VERIFIED = 'VERIFIED'
     REJECTED = 'REJECTED'
 
 
-class PayoutReason(str, Enum):
-    REFERRAL = 'REFERRAL'
-    ACTIVITY = 'ACTIVITY'
-    OTHER = 'OTHER'
+class TransactionType(str, Enum):
+    INCOME = 'INCOME'
+    OUTCOME = 'OUTCOME'
 
 
-class PaymentReason(str, Enum):
-    BRACELET = 'BRACELET'
-    OTHER = 'OTHER'
+class TransactionStatus(str, Enum):
+    PENDING = 'PENDING'
+    SUCCESS = 'SUCCESS'
+    FAILED = 'FAILED'
+    DECLINED = 'DECLINED'
+
+
+# TODO: объединить FinanceTransactionType и TransactionType;
+#       объединить TransactionStatus и CompletionStatus

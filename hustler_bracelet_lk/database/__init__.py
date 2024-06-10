@@ -25,10 +25,10 @@ __all__ = [
     'FinanceTransaction',
     'InvestmentTransaction',
     'Niche',
-    'Payment',
-    'Payout',
     'Task',
     'TaskCompletionProof',
     'User',
     'BaseModel',
+    'BraceletTransaction',
+    'BraceletSubscription'
 ]

@@ -1,5 +1,5 @@
 
-from typing import TypeVar, Generic, Type
+from typing import TypeVar, Generic, Type, Sequence
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -100,19 +100,19 @@ class Repository(Generic[M]):
             else:
                 raise QueryActionNotAllowedError(f'Unsupported action: {action}')
 
-        return await self._session.execute(query)
+        return (await self._session.execute(query)).scalars().all()
 
-    async def filter_by(self, options: list | None = None, **filters) -> M | None:
+    async def filter_by(self, options: list | None = None, **filters) -> Sequence[M] | None:
         query = (
             select(self._model)
             .filter_by(**filters)
-            .order_by(self._model.id.asc())
+            # .order_by(self._model.id.asc())
         )
 
         if options:
             query = query.options(*options)
 
-        return (await self._session.execute(query)).scalars().first()
+        return (await self._session.execute(query)).scalars().all()
 
     async def create(self, model: M, with_commit: bool = True) -> M:
         """Create model in database"""
@@ -136,7 +136,7 @@ class Repository(Generic[M]):
 
     async def update(self, model: M, with_commit: bool = True) -> M:
         """Update model in database"""
-        self._session.merge(model)
+        await self._session.merge(model)
         await self._session.flush()
 
         if with_commit:
@@ -146,7 +146,7 @@ class Repository(Generic[M]):
 
     async def delete(self, model: M, with_commit: bool = True) -> M:
         """Delete model from database"""
-        self._session.delete(model)
+        await self._session.delete(model)
         await self._session.flush()
 
         if with_commit:
