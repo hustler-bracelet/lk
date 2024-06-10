@@ -29,9 +29,28 @@ referral_dialog = Dialog(
             when=F['referred_users_amount'] > 0
         ),
 
+        Start(
+            text=Const('🤑 Получить выплату'),
+            id='lk.referral.get_payout_button',
+            state=ReferralState.GET_PAYOUT,
+            when=F['referral_payout_rub'] >= 1000
+        ),
         Cancel(Const('⬅️ Назад')),
 
         state=ReferralState.MAIN
     ),
+
+    Window(
+        Const(
+            '🤑 <b>Получение выплаты</b>\n'
+            '\n'
+            'Для того, чтобы получить выплату, отпиши администратору @ambienthugg '
+            'со своими реквизитами.'
+        ),
+        Cancel(Const('👌 Ок')),
+
+        state=ReferralState.GET_PAYOUT
+    ),
+
     getter=referral_dialog_getter
 )

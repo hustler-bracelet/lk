@@ -9,6 +9,7 @@ class BraceletOnboardingState(StatesGroup):
     JOBS = State()
     ARTICLES = State()
     HELPER_BOT = State()
+    ACTIVITIES = State()
     FINAL = State()
 
     SUBSCRIPTION_MAIN = State()
