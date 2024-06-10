@@ -18,7 +18,7 @@ class TransactionManager:
             reason: str | None = None
     ) -> BraceletTransaction:
         new_transaction = BraceletTransaction(
-            telegram_id=self._user.telegram_id,
+            telegram_id=await self._user.awaitable_attrs.telegram_id,
             type=transaction_type,
             status=TransactionStatus.PENDING,
             amount=amount,
@@ -42,9 +42,8 @@ class TransactionManager:
         await self._process_transaction(transaction, status=TransactionStatus.DECLINED)
         return self
 
-    async def get_all_transactions(self) -> list[BraceletTransaction]:
-        all_transactions = await bracelet_transaction_repository.filter()
-        return [
-            transaction for transaction in all_transactions
-            if transaction.telegram_id == self._user.telegram_id
-        ]  # TODO: костыль!
+    async def get_all_transactions(self, of_type: TransactionType) -> list[BraceletTransaction]:
+        return await bracelet_transaction_repository.filter_by(
+            telegram_id=await self._user.awaitable_attrs.telegram_id,
+            type=of_type
+        )

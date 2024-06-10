@@ -34,16 +34,10 @@ async def database_middleware(
     else:
         user = await user_repository.get_by_pk(telegram_id)
         if not user:
-            try:
-                referred_by = data['referred_by']
-            except KeyError:
-                referred_by = None
-
             user = await user_repository.create(
                 User(
                     telegram_id=telegram_id,
-                    telegram_name=event.from_user.first_name,
-                    referred_by=referred_by
+                    telegram_name=event.from_user.first_name
                 )
             )
             did_create_user = True

@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import aiogram_dialog
 
 from aiogram import Bot, Dispatcher, Router
 from aiogram.enums import ParseMode
@@ -9,6 +10,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import ErrorEvent, ReplyKeyboardRemove
 from aiogram_dialog import DialogManager, setup_dialogs, ShowMode, StartMode
 from aiogram_dialog.api.exceptions import UnknownIntent
+from aiogram_dialog.widgets.text import setup_jinja
 
 import config
 from hustler_bracelet_lk.bot.dialogs.bracelet_onboarding.dialog import bracelet_onboarding_dialog
@@ -16,7 +18,9 @@ from hustler_bracelet_lk.bot.dialogs.bracelet_onboarding.dialog import bracelet_
 from hustler_bracelet_lk.bot.dialogs.main.dialog import main_dialog
 from hustler_bracelet_lk.bot.dialogs.main.states import MainDialogState
 from hustler_bracelet_lk.bot.dialogs.referral.dialog import referral_dialog
-from hustler_bracelet_lk.bot.handlers import start_command_handler, approve_command_handler
+from hustler_bracelet_lk.bot.dialogs.referral_payout.dialog import referral_payout_dialog
+from hustler_bracelet_lk.bot.handlers import start_command_handler, approve_command_handler, decline_command_handler
+from hustler_bracelet_lk.bot.jinja_filters import get_jinja_filters
 from hustler_bracelet_lk.bot.middlewares import database_middleware
 
 
@@ -55,7 +59,8 @@ dialog_router = Router()
 dialog_router.include_routers(
     main_dialog,
     referral_dialog,
-    bracelet_onboarding_dialog
+    bracelet_onboarding_dialog,
+    referral_payout_dialog
 )
 
 
@@ -65,6 +70,7 @@ def setup_dp():
 
     dp.message.register(start_command_handler, CommandStart())
     dp.message.register(approve_command_handler, Command('approve'))
+    dp.message.register(decline_command_handler, Command('decline'))
 
     dp.errors.register(
         on_unknown_intent,
@@ -89,7 +95,7 @@ async def main():
 
     dp = setup_dp()
 
-    # aiogram_dialog.widgets.text.jinja.default_env = setup_jinja(dp, filters=get_jinja_filters())
+    aiogram_dialog.widgets.text.jinja.default_env = setup_jinja(dp, filters=get_jinja_filters())
 
     await dp.start_polling(bot)
 

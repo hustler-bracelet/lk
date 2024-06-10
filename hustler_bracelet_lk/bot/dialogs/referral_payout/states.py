@@ -1,5 +1,6 @@
 from aiogram.fsm.state import State, StatesGroup
 
 
-class BraceletCancellationState(StatesGroup):
+class ReferralPayoutState(StatesGroup):
     MAIN = State()
+    FINAL = State()

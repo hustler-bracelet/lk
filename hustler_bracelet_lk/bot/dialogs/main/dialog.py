@@ -1,5 +1,5 @@
 from aiogram_dialog import Dialog, Window, LaunchMode, DialogManager
-from aiogram_dialog.widgets.text import Format, Const, Case
+from aiogram_dialog.widgets.text import Format, Const, Case, Jinja
 from aiogram_dialog.widgets.kbd import Start
 from magic_filter import F
 
@@ -7,9 +7,9 @@ from .getters import main_dialog_getter
 from .states import MainDialogState
 from enum import Enum, auto
 
-from ..bracelet_cancellation.states import BraceletCancellationState
 from ..bracelet_onboarding.states import BraceletOnboardingState
 from ..referral.states import ReferralState
+from ..referral_payout.states import ReferralPayoutState
 
 
 class BraceletCase(Enum):
@@ -23,9 +23,9 @@ class ReferralCase(Enum):
     REFERRAL_ACTIVE = auto()
 
 
-active_subscription_widget = Format(
+active_subscription_widget = Jinja(
     '<b>✅ Подписка на HUSTLER BRACELET активна.</b>\n'
-    '🗓 <b>До:</b> {bracelet_will_end_on}'  # TODO: фильтровать data[bracelet_will_end_on]
+    '🗓 <b>До:</b> {{ bracelet_will_end_on|datetime }}'
 )
 
 inactive_subscription_widget = Format(
@@ -38,9 +38,9 @@ no_referred_users_widget = Const(
     'Приводи друзей в браслет и получай рубли, а не циферки!'
 )
 
-referral_active_widget = Format(
-    '\n👥 <b>Рефералов приведено:</b> {referred_users_amount}\n'
-    '💸 <b>Твоя выплата:</b> {referral_payout_rub} рублей'  # TODO: jinja filter money
+referral_active_widget = Jinja(
+    '\n👥 <b>Рефералов приведено:</b> {{ referred_users_amount }}\n'
+    '💸 <b>Твоя выплата:</b> {{ referral_payout_rub|money }}'
 )
 
 
@@ -94,10 +94,10 @@ main_dialog = Dialog(
             when=F['is_bracelet_active']
         ),
         Start(
-            text=Const('❌ Отменить подписку'),
-            id='lk.main.bracelet_cancellation_btn',
-            state=BraceletCancellationState.MAIN,
-            when=F['is_bracelet_active']
+            text=Const('⚙️ Админ: Выплата по рефералке'),
+            id='lk.main.referral_payout',
+            state=ReferralPayoutState.MAIN,
+            when=F['is_ambi']
         ),
 
         state=MainDialogState.MAIN

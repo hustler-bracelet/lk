@@ -3,11 +3,17 @@ from datetime import datetime
 
 from hustler_bracelet_lk.referral.payout_calculator import PayoutCalculator
 from hustler_bracelet_lk.referral.service import ReferralService
+from hustler_bracelet_lk.subscription.bracelet_channel_manager import BraceletChannelManager
+from hustler_bracelet_lk.subscription.subscription_manager import SubscriptionManager
+from hustler_bracelet_lk.subscription.transaction_manager import TransactionManager
 
 
 async def referral_dialog_getter(dialog_manager: DialogManager, **kwargs):
-    referral_service = ReferralService(dialog_manager.middleware_data['user'])
-    payout_calculator = PayoutCalculator(referral_service)
+    user = dialog_manager.middleware_data['user']
+    transaction_manager = TransactionManager(user)
+    bracelet_channel_manager = BraceletChannelManager(user, dialog_manager.event.bot)
+    referral_service = ReferralService(user, SubscriptionManager(user, bracelet_channel_manager))
+    payout_calculator = PayoutCalculator(referral_service, transaction_manager)
 
     referred_users_amount = len(await referral_service.get_referred_users())
     referral_payout_rub = await payout_calculator.get_total_payout()
@@ -18,7 +24,10 @@ async def referral_dialog_getter(dialog_manager: DialogManager, **kwargs):
         # чучуть говнокод чучуть похуй...
         individual_payouts = await payout_calculator.get_individual_payouts()
         return [
-            {'name': payout[0], 'joined_on': datetime(2024, 6, 8), 'payout': payout[1]}
+            {
+                'name': await payout[0].awaitable_attrs.telegram_name,
+                'payout': payout[1]
+            }
             for payout in individual_payouts
         ]
 

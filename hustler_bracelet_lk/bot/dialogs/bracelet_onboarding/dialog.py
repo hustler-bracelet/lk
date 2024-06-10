@@ -4,6 +4,11 @@ from aiogram_dialog import Dialog, Window, DialogManager, ChatEvent
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.text import Format, Const
 from aiogram_dialog.widgets.kbd import Start, SwitchTo, Cancel, Row, Back, Group, Button
+
+import config
+from hustler_bracelet_lk.enums import TransactionType
+from hustler_bracelet_lk.repos.user import user_repository
+from hustler_bracelet_lk.subscription.transaction_manager import TransactionManager
 from .states import BraceletOnboardingState
 
 
@@ -23,8 +28,25 @@ async def on_payment_proof_sent(
         _: MessageInput,
         dialog_manager: DialogManager
 ):
-    await message.forward(chat_id=6567176437)  # TODO: change to ambi
+    for admin in config.ADMINS:
+        await message.forward(chat_id=admin)
+        await message.bot.send_message(
+            chat_id=admin,
+            text=f'Это пруф на оплату от юзера @{message.from_user.username} '
+                 f'({message.from_user.full_name}).\n'
+                 f'Чтобы подтвердить пруф, напиши <code>/approve {message.from_user.id}</code>\n'
+                 f'Чтобы отклонить пруф, напиши <code>/decline {message.from_user.id}</code>'
+        )
     dialog_manager.dialog_data['payment_message'] = message.model_copy()
+
+    user = await user_repository.get_by_pk(message.from_user.id)
+    transaction_manager = TransactionManager(user)
+    await transaction_manager.create_pending_transaction(
+        transaction_type=TransactionType.INCOME,
+        amount=1000.0,
+        reason=f'Оплата браслета пользователем {message.from_user.id}'
+    )
+
     return await dialog_manager.next()
 
 

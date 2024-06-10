@@ -21,10 +21,9 @@ class BraceletChannelManager:
     async def remove_user(self) -> BraceletChannelManager:
         ...
 
-    async def is_subscribed_to_channel(self) -> bool:
-        # user = await self._bot.get_chat_member(
-        #     chat_id=config.BRACELET_CHANNEL_ID,
-        #     user_id=self._user.telegram_id
-        # )
-        # return user.status != "left"
-        return True  # TODO XXX
+    async def is_subscribed_to_channel(self) -> bool:  # noqa
+        user = await self._bot.get_chat_member(
+            chat_id=config.BRACELET_CHANNEL_ID,
+            user_id=await self._user.awaitable_attrs.telegram_id
+        )
+        return user.status != "left"
