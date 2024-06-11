@@ -4,3 +4,4 @@ aiogram_dialog
 SQLAlchemy~=2.0.29
 simpleeval~=0.9.13
 asyncpg
+pytz
