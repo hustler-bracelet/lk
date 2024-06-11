@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import config
-from sqlalchemy.ext.asyncio import AsyncEngine
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from sqlalchemy import URL
-from sqlmodel import create_engine, SQLModel
+from sqlmodel import create_engine
 
 DATABASE_ENGINE = AsyncEngine(
     create_engine(
@@ -12,15 +12,18 @@ DATABASE_ENGINE = AsyncEngine(
             username=config.DB_USER,
             password=config.DB_PASS,
             host=config.DB_HOST,
-            port=5432,
+            port=config.DB_PORT,
             database=config.DB_NAME,
             query={}
         )
     )
 )
 
+DATABASE_SESSION = AsyncSession(DATABASE_ENGINE)
+
 
 async def create_all_tables() -> None:
     async with DATABASE_ENGINE.begin() as conn:
         # await conn.run_sync(SQLModel.metadata.drop_all)
-        return await conn.run_sync(SQLModel.metadata.create_all)
+        # return await conn.run_sync(SQLModel.metadata.create_all)
+        pass
