@@ -6,16 +6,18 @@ from hustler_bracelet_lk.subscription.bracelet_channel_manager import BraceletCh
 from hustler_bracelet_lk.subscription.errors import UnmigratedSubscriptionError, UserAlreadyRemovedError
 from hustler_bracelet_lk.subscription.subscription_manager import SubscriptionManager
 from hustler_bracelet_lk.subscription.transaction_manager import TransactionManager
-from hustler_bracelet_lk.repos.user import user_repository
-from hustler_bracelet_lk.repos.bracelet_transaction import bracelet_transaction_repository
+from hustler_bracelet_lk.repos.user import get_user_repository
+from hustler_bracelet_lk.repos.bracelet_transaction import get_bracelet_transaction_repository
 
 
 async def start_command_handler(message: Message, dialog_manager: DialogManager):
+    session = dialog_manager.middleware_data['session']
     possible_referral_id = message.text.removeprefix('/start').strip()
     if possible_referral_id:
         possible_referral_id = int(possible_referral_id)
 
         if dialog_manager.middleware_data['did_create_user']:
+            user_repository = get_user_repository(session)
             user = dialog_manager.middleware_data['user']
             user.referred_by = possible_referral_id
             await user_repository.update(user)
@@ -25,20 +27,27 @@ async def start_command_handler(message: Message, dialog_manager: DialogManager)
 
 
 async def approve_command_handler(message: Message, dialog_manager: DialogManager):
+    session = dialog_manager.middleware_data['session']
+
     telegram_id = message.text.removeprefix('/approve ').strip()
     if not telegram_id:
         await message.answer('ты чо офигел')
 
     telegram_id = int(telegram_id)
 
+    user_repository = get_user_repository(session)
     user = await user_repository.get_by_pk(telegram_id)
-    bracelet_channel_manager = BraceletChannelManager(user, message.bot)
-    subscription_manager = SubscriptionManager(user, bracelet_channel_manager)
-    transaction_manager = TransactionManager(user)
+
+    bracelet_transaction_repository = get_bracelet_transaction_repository(session)
 
     all_user_transactions = await bracelet_transaction_repository.filter_by(
         telegram_id=user.telegram_id
     )
+
+    bracelet_channel_manager = BraceletChannelManager(user, message.bot)
+    subscription_manager = SubscriptionManager(user, bracelet_channel_manager, session)
+    transaction_manager = TransactionManager(user, session)
+
     if not all_user_transactions:
         await message.answer('этот белый не подавал заявку')
 
@@ -74,14 +83,19 @@ async def approve_command_handler(message: Message, dialog_manager: DialogManage
 
 
 async def decline_command_handler(message: Message, dialog_manager: DialogManager):
+    session = dialog_manager.middleware_data['session']
     telegram_id = message.text.removeprefix('/decline ').strip()
     if not telegram_id:
         await message.answer('ты чо офигел')
 
     telegram_id = int(telegram_id)
 
+    user_repository = get_user_repository(session)
     user = await user_repository.get_by_pk(telegram_id)
-    transaction_manager = TransactionManager(user)
+
+    transaction_manager = TransactionManager(user, session)
+
+    bracelet_transaction_repository = get_bracelet_transaction_repository(session)
 
     all_user_transactions = await bracelet_transaction_repository.filter_by(
         telegram_id=await user.awaitable_attrs.telegram_id

@@ -5,9 +5,10 @@ from aiogram.exceptions import TelegramBadRequest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from config import BRACELET_CHANNEL_ID
-from hustler_bracelet_lk.database.engine import DATABASE_ENGINE
+# from hustler_bracelet_lk.database.engine import DATABASE_ENGINE
 from hustler_bracelet_lk.database.models import User
-from hustler_bracelet_lk.repos.user import user_repository
+from hustler_bracelet_lk.database.engine import SessionMaker
+from hustler_bracelet_lk.repos.user import get_user_repository
 
 
 async def database_middleware(
@@ -25,26 +26,19 @@ async def database_middleware(
             raise exception
 
     telegram_id = event.from_user.id
-    user_cache: dict[int, User] = {}  # чтобы не обращаться к бд при каждом запросе
-    did_create_user = False
 
-    if telegram_id in user_cache.keys():
-        user = user_cache[telegram_id]
-
-    else:
-        user = await user_repository.get_by_pk(telegram_id)
+    async with SessionMaker() as session:
+        user_rpository = get_user_repository(session)
+        user = await user_rpository.get_by_pk(telegram_id)
         if not user:
-            user = await user_repository.create(
+            user = await user_rpository.create(
                 User(
                     telegram_id=telegram_id,
                     telegram_name=event.from_user.first_name
                 )
             )
-            did_create_user = True
 
-        user_cache[telegram_id] = user
+        data['user'] = user
+        data['session'] = session
 
-    data['user'] = user
-    data['did_create_user'] = did_create_user
-
-    return await handler(raw_event, data)
+        return await handler(raw_event, data)

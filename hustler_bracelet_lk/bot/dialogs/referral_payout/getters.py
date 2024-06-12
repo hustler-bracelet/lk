@@ -10,10 +10,11 @@ from hustler_bracelet_lk.subscription.transaction_manager import TransactionMana
 
 
 async def referral_payout_dialog_getter(dialog_manager: DialogManager, **kwargs):
+    session = dialog_manager.middleware_data['session']
     user = dialog_manager.middleware_data['user']
-    transaction_manager = TransactionManager(user)
+    transaction_manager = TransactionManager(user, session)
     bracelet_channel_manager = BraceletChannelManager(user, dialog_manager.event.bot)
-    referral_service = ReferralService(user, SubscriptionManager(user, bracelet_channel_manager))
+    referral_service = ReferralService(user, SubscriptionManager(user, bracelet_channel_manager, session), session)
     payout_calculator = PayoutCalculator(referral_service, transaction_manager)
 
     async def get_referral_payout_users() -> list[tuple[str, float, str]]:

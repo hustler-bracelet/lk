@@ -4,7 +4,8 @@ from datetime import datetime, timedelta, tzinfo
 
 import pytz
 
-from hustler_bracelet_lk.repos.bracelet_subscription import bracelet_subscription_repository
+from hustler_bracelet_lk.repos.bracelet_subscription import get_bracelet_subscription_repository
+from hustler_bracelet_lk.repos.bracelet_transaction import get_bracelet_transaction_repository
 from hustler_bracelet_lk.database.models import BraceletSubscription, BraceletTransaction, User
 from hustler_bracelet_lk.subscription.bracelet_channel_manager import BraceletChannelManager
 
@@ -15,19 +16,22 @@ from .errors import (
 )
 
 from ..enums import TransactionStatus, TransactionType
-from ..repos.bracelet_transaction import bracelet_transaction_repository
 
 
 class SubscriptionManager:
-    def __init__(self, user: User, bracelet_channel_manager: BraceletChannelManager):
+    def __init__(self, user: User, bracelet_channel_manager: BraceletChannelManager, session):
         self._user = user
         self._bracelet_channel_manager = bracelet_channel_manager
+        self._session = session
 
     async def get_user_subscription(
             self
     ) -> BraceletSubscription | None:
         telegram_id = await self._user.awaitable_attrs.telegram_id
         telegram_name = await self._user.awaitable_attrs.telegram_name
+
+        bracelet_subscription_repository = get_bracelet_subscription_repository(self._session)
+        bracelet_transaction_repository = get_bracelet_transaction_repository(self._session)
 
         all_user_subscriptions = await bracelet_subscription_repository.filter_by(
             telegram_id=telegram_id
@@ -63,6 +67,8 @@ class SubscriptionManager:
         return None
 
     async def subscribe(self, bracelet_transaction: BraceletTransaction) -> BraceletSubscription:
+        bracelet_subscription_repository = get_bracelet_subscription_repository(self._session)
+
         if await self.get_user_subscription():
             raise UserAlreadyAddedError
 
@@ -81,6 +87,7 @@ class SubscriptionManager:
         return new_subscription
 
     async def unsubscribe(self) -> SubscriptionManager:
+        bracelet_subscription_repository = get_bracelet_subscription_repository(self._session)
         current_subscription = await self.get_user_subscription()
         if not current_subscription:
             raise UserAlreadyRemovedError
@@ -92,6 +99,8 @@ class SubscriptionManager:
         return self
 
     async def extend_subscription(self) -> BraceletSubscription:
+        bracelet_subscription_repository = get_bracelet_subscription_repository(self._session)
+
         current_subscription = await self.get_user_subscription()
         if not current_subscription:
             raise UserAlreadyRemovedError
