@@ -7,7 +7,8 @@ from aiogram_dialog.widgets.kbd import Start, SwitchTo, Cancel, Row, Back, Group
 
 import config
 from hustler_bracelet_lk.enums import TransactionType
-from hustler_bracelet_lk.repos.user import user_repository
+from hustler_bracelet_lk.database.engine import SessionMaker
+from hustler_bracelet_lk.repos.user import get_user_repository
 from hustler_bracelet_lk.subscription.transaction_manager import TransactionManager
 from .states import BraceletOnboardingState
 
@@ -28,6 +29,7 @@ async def on_payment_proof_sent(
         _: MessageInput,
         dialog_manager: DialogManager
 ):
+    session = dialog_manager.middleware_data['session']
     for admin in config.ADMINS:
         await message.forward(chat_id=admin)
         await message.bot.send_message(
@@ -39,8 +41,10 @@ async def on_payment_proof_sent(
         )
     dialog_manager.dialog_data['payment_message'] = message.model_copy()
 
+    user_repository = get_user_repository(session)
     user = await user_repository.get_by_pk(message.from_user.id)
-    transaction_manager = TransactionManager(user)
+
+    transaction_manager = TransactionManager(user, session)
     await transaction_manager.create_pending_transaction(
         transaction_type=TransactionType.INCOME,
         amount=1000.0,

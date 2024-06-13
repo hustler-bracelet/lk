@@ -1,8 +1,9 @@
 from .generic import Repository
-from hustler_bracelet_lk.database.models import BraceletSubscription
-from hustler_bracelet_lk.database.engine import DATABASE_SESSION
 
-bracelet_subscription_repository = Repository(
-    model=BraceletSubscription,
-    session=DATABASE_SESSION
-)
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from hustler_bracelet_lk.database.models import BraceletSubscription
+
+
+def get_bracelet_subscription_repository(session) -> Repository[BraceletSubscription]:
+    return Repository(BraceletSubscription, session)

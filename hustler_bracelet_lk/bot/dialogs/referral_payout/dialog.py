@@ -10,7 +10,8 @@ from hustler_bracelet_lk.bot.dialogs.referral_payout.getters import referral_pay
 from hustler_bracelet_lk.bot.dialogs.referral_payout.states import ReferralPayoutState
 from hustler_bracelet_lk.database import BraceletTransaction
 from hustler_bracelet_lk.enums import TransactionType
-from hustler_bracelet_lk.repos.user import user_repository
+from hustler_bracelet_lk.database.engine import SessionMaker
+from hustler_bracelet_lk.repos.user import get_user_repository
 from hustler_bracelet_lk.subscription.transaction_manager import TransactionManager
 
 
@@ -23,10 +24,13 @@ async def on_user_selector_click(
     referral_telegram_id = int(item_id)
     caller_telegram_id = dialog_manager.event.from_user.id
 
+    session = dialog_manager.middleware_data['session']
+
+    user_repository = get_user_repository(session)
     referral_user = await user_repository.get_by_pk(referral_telegram_id)
     caller_user = await user_repository.get_by_pk(caller_telegram_id)
 
-    transaction_manager = TransactionManager(caller_user)
+    transaction_manager = TransactionManager(caller_user, session)
 
     def get_user_item_by_id(tg_id: int) -> tuple[str, float, str] | None:
         for item in dialog_manager.dialog_data['referral_payout_users']:
