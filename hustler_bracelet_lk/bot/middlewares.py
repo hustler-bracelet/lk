@@ -28,15 +28,18 @@ async def database_middleware(
     telegram_id = event.from_user.id
 
     async with SessionMaker() as session:
-        user_rpository = get_user_repository(session)
-        user = await user_rpository.get_by_pk(telegram_id)
+        user_repository = get_user_repository(session)
+        user = await user_repository.get_by_pk(telegram_id)
         if not user:
-            user = await user_rpository.create(
+            user = await user_repository.create(
                 User(
                     telegram_id=telegram_id,
                     telegram_name=event.from_user.first_name
                 )
             )
+            data['did_create_user'] = True
+        else:
+            data['did_create_user'] = False
 
         data['user'] = user
         data['session'] = session
