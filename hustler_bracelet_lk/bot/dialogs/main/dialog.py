@@ -43,6 +43,11 @@ referral_active_widget = Jinja(
     '💸 <b>Твоя выплата:</b> {{ referral_payout_rub|money }}'
 )
 
+will_end_soon_widget = Const(
+    '❗️ <b>Твоя подписка скоро закончится!</b> Успей продлить по кнопке ниже 👇',
+    when=F['will_end_soon']
+)
+
 
 def bracelet_selector(data: dict, case: Case, manager: DialogManager):
     if data['is_bracelet_active']:
@@ -80,7 +85,14 @@ main_dialog = Dialog(
             },
             selector=referral_selector
         ),
+        will_end_soon_widget,
 
+        Start(
+            text=Const('💸 Продлить подписку'),
+            id='lk.main.extend_subscription_btn',
+            state=BraceletOnboardingState.SUBSCRIPTION_MAIN,
+            when=F['will_end_soon']
+        ),
         Start(
             text=Const('💸 Оформить подписку'),
             id='lk.main.bracelet_onboarding_btn',

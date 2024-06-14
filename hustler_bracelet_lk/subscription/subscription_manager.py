@@ -82,8 +82,6 @@ class SubscriptionManager:
         )
         await bracelet_subscription_repository.create(new_subscription)
 
-        # TODO: add user to chat and channel
-
         return new_subscription
 
     async def unsubscribe(self) -> SubscriptionManager:
@@ -92,9 +90,7 @@ class SubscriptionManager:
         if not current_subscription:
             raise UserAlreadyRemovedError
 
-        bracelet_subscription_repository.delete(current_subscription)
-
-        # TODO: remove user from chat and channel
+        await bracelet_subscription_repository.delete(current_subscription)
 
         return self
 
@@ -105,7 +101,10 @@ class SubscriptionManager:
         if not current_subscription:
             raise UserAlreadyRemovedError
 
-        current_subscription.will_end_on += timedelta(days=30)
-        bracelet_subscription_repository.update(current_subscription)
+        started_on = await current_subscription.awaitable_attrs.started_on
+        current_subscription.will_end_on = started_on + timedelta(days=60)
+        # NOTE: может не работать как надо в некоторых сценариях. надо потестить
+
+        await bracelet_subscription_repository.update(current_subscription)
 
         return current_subscription
