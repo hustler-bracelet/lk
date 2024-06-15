@@ -91,7 +91,7 @@ main_dialog = Dialog(
             text=Const('💸 Продлить подписку'),
             id='lk.main.extend_subscription_btn',
             state=BraceletOnboardingState.SUBSCRIPTION_MAIN,
-            when=F['will_end_soon']
+            when=F['is_bracelet_active']
         ),
         Start(
             text=Const('💸 Оформить подписку'),

@@ -60,7 +60,7 @@ class SubscriptionManager:
             new_subscription = BraceletSubscription(
                 telegram_id=telegram_id,
                 transaction_id=await new_transaction.awaitable_attrs.id,
-                will_end_on=datetime.now() + timedelta(days=30)
+                will_end_on=datetime.now(pytz.timezone('Europe/Moscow')) + timedelta(days=30)
             )
             await bracelet_subscription_repository.create(new_subscription)
             return new_subscription
@@ -79,7 +79,7 @@ class SubscriptionManager:
         new_subscription = BraceletSubscription(
             telegram_id=await self._user.awaitable_attrs.telegram_id,
             transaction_id=await bracelet_transaction.awaitable_attrs.id,
-            will_end_on=datetime.now() + relativedelta(months=1)
+            will_end_on=datetime.now(pytz.timezone('Europe/Moscow')) + relativedelta(months=1)
         )
         await bracelet_subscription_repository.create(new_subscription)
 
@@ -102,8 +102,7 @@ class SubscriptionManager:
         if not current_subscription:
             raise UserAlreadyRemovedError
 
-        current_subscription.will_end_on = current_subscription.started_on + relativedelta(months=2)
-        current_subscription.started_on = datetime.now()
+        current_subscription.will_end_on = current_subscription.will_end_on + relativedelta(months=1)
 
         await bracelet_subscription_repository.update(current_subscription)
 
