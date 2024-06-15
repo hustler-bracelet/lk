@@ -32,7 +32,7 @@ async def main_dialog_getter(dialog_manager: DialogManager, **kwargs):
     now = datetime.now()
     now = pytz.timezone('Europe/Moscow').localize(now)
 
-    will_end_soon = (bracelet_will_end_on - now <= timedelta(days=3))
+    # will_end_soon = (bracelet_will_end_on - now <= timedelta(days=3))
 
     return {
         'is_bracelet_active': is_bracelet_active,
@@ -40,5 +40,5 @@ async def main_dialog_getter(dialog_manager: DialogManager, **kwargs):
         'referred_users_amount': referred_users_amount,
         'referral_payout_rub': referral_payout_rub,
         'is_ambi': is_ambi,
-        'will_end_soon': will_end_soon
+        'will_end_soon': False,
     }
