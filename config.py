@@ -17,7 +17,7 @@ DB_NAME = os.getenv('DB_NAME')
 # DB_USER = "postgres"
 # DB_PASS = "85ea97f8eec46176"
 # DB_NAME = "postgres"
-# ADMINS = [6567176437, 1702948486]
+ADMINS = [6567176437, 1702948486, 404161836]
 
 VERSION = '1.1.0-lk'
 UPDATE_TIME = '10 июня 2024'
