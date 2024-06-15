@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta, tzinfo
+from dateutil.relativedelta import relativedelta
 
 import pytz
 
@@ -78,11 +79,9 @@ class SubscriptionManager:
         new_subscription = BraceletSubscription(
             telegram_id=await self._user.awaitable_attrs.telegram_id,
             transaction_id=await bracelet_transaction.awaitable_attrs.id,
-            will_end_on=datetime.now() + timedelta(days=30)
+            will_end_on=datetime.now() + relativedelta(months=1)
         )
         await bracelet_subscription_repository.create(new_subscription)
-
-        # TODO: add user to chat and channel
 
         return new_subscription
 
@@ -92,9 +91,7 @@ class SubscriptionManager:
         if not current_subscription:
             raise UserAlreadyRemovedError
 
-        bracelet_subscription_repository.delete(current_subscription)
-
-        # TODO: remove user from chat and channel
+        await bracelet_subscription_repository.delete(current_subscription)
 
         return self
 
@@ -105,7 +102,9 @@ class SubscriptionManager:
         if not current_subscription:
             raise UserAlreadyRemovedError
 
-        current_subscription.will_end_on += timedelta(days=30)
-        bracelet_subscription_repository.update(current_subscription)
+        current_subscription.will_end_on = current_subscription.started_on + relativedelta(months=2)
+        current_subscription.started_on = datetime.now()
+
+        await bracelet_subscription_repository.update(current_subscription)
 
         return current_subscription
