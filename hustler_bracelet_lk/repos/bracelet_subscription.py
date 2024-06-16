@@ -9,7 +9,7 @@ from hustler_bracelet_lk.database.models import BraceletSubscription
 
 
 def get_bracelet_subscription_repository(session) -> 'SubscriptionRepo':
-    return SubscriptionRepo(session)
+    return SubscriptionRepo(BraceletSubscription, session)
 
 
 class SubscriptionRepo(Repository[BraceletSubscription]):
