@@ -34,17 +34,15 @@ class SubscriptionManager:
         bracelet_subscription_repository = get_bracelet_subscription_repository(self._session)
         bracelet_transaction_repository = get_bracelet_transaction_repository(self._session)
 
-        all_user_subscriptions = await bracelet_subscription_repository.filter_by(
+        last_user_sub = await bracelet_subscription_repository.get_last_subscription(
             telegram_id=telegram_id
         )
 
+        if last_user_sub:
+            return last_user_sub
+
         now = datetime.now()
         now = pytz.timezone('Europe/Moscow').localize(now)
-        for subscription in all_user_subscriptions:
-            started_on = await subscription.awaitable_attrs.started_on
-            will_end_on = await subscription.awaitable_attrs.will_end_on
-            if started_on <= now <= will_end_on:
-                return subscription
 
         if await self._bracelet_channel_manager.is_subscribed_to_channel():
             new_transaction = BraceletTransaction(
@@ -64,8 +62,6 @@ class SubscriptionManager:
             )
             await bracelet_subscription_repository.create(new_subscription)
             return new_subscription
-
-        return None
 
     async def subscribe(self, bracelet_transaction: BraceletTransaction) -> BraceletSubscription:
         bracelet_subscription_repository = get_bracelet_subscription_repository(self._session)
