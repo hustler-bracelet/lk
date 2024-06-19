@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import aiogram_dialog
+import config
 
 from aiogram import Bot, Dispatcher, Router
 from aiogram.enums import ParseMode
@@ -12,7 +13,6 @@ from aiogram_dialog import DialogManager, setup_dialogs, ShowMode, StartMode
 from aiogram_dialog.api.exceptions import UnknownIntent
 from aiogram_dialog.widgets.text import setup_jinja
 
-import config
 from hustler_bracelet_lk.bot.dialogs.bracelet_onboarding.dialog import bracelet_onboarding_dialog
 
 from hustler_bracelet_lk.bot.dialogs.main.dialog import main_dialog
@@ -91,13 +91,13 @@ def setup_dp():
 async def main():
     # real main
     logging.basicConfig(level=logging.INFO)
-    bot = Bot(token=config.TG_BOT_TOKEN, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
+    config.BOT = Bot(token=config.TG_BOT_TOKEN, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
 
     dp = setup_dp()
 
     aiogram_dialog.widgets.text.jinja.default_env = setup_jinja(dp, filters=get_jinja_filters())
 
-    await dp.start_polling(bot)
+    await dp.start_polling(config.BOT)
 
 
 if __name__ == '__main__':

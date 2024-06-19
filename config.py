@@ -1,5 +1,7 @@
 import os
 
+from aiogram import Bot
+
 TG_BOT_TOKEN = os.getenv('TOKEN')
 BRACELET_CHANNEL_ID = os.getenv('CHANNEL_ID')
 DB_HOST = os.getenv('DB_HOST')
@@ -12,12 +14,14 @@ DB_NAME = os.getenv('DB_NAME')
 # TG_BOT_TOKEN = "7254821810:AAEg1ZUp1beOXpJcs2-9rR105PCG7ULfWzI"
 # BRACELET_CHANNEL_ID = -1001969838018 (PROD)
 # BRACELET_CHANNEL_ID = -1002233580105
-# DB_HOST = "postgres.c.nsdkin.ru"
-# DB_PORT = 5433
+# DB_HOST = "127.0.0.1"
+# DB_PORT = 5432
 # DB_USER = "postgres"
-# DB_PASS = "85ea97f8eec46176"
+# DB_PASS = "a1TPceenqWe"
 # DB_NAME = "postgres"
-ADMINS = [6567176437, 1702948486, 404161836]
+# ADMINS = [6567176437, 1702948486, 404161836]
 
-VERSION = '1.1.0-lk'
-UPDATE_TIME = '10 июня 2024'
+BOT: Bot | None = None
+
+VERSION = '1.1.1-lk'
+UPDATE_TIME = '19 июня 2024'

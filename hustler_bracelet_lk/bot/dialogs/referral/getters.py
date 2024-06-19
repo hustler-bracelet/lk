@@ -12,7 +12,7 @@ async def referral_dialog_getter(dialog_manager: DialogManager, **kwargs):
     user = dialog_manager.middleware_data['user']
     session = dialog_manager.middleware_data['session']
     transaction_manager = TransactionManager(user, session)
-    bracelet_channel_manager = BraceletChannelManager(user, dialog_manager.event.bot)
+    bracelet_channel_manager = BraceletChannelManager(user)
     referral_service = ReferralService(user, SubscriptionManager(user, bracelet_channel_manager, session), session)
     payout_calculator = PayoutCalculator(referral_service, transaction_manager)
 

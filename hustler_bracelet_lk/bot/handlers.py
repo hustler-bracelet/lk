@@ -2,6 +2,7 @@ from aiogram.types import Message
 from aiogram_dialog import DialogManager, StartMode
 
 from hustler_bracelet_lk.bot.dialogs.main.states import MainDialogState
+from hustler_bracelet_lk.enums import TransactionStatus
 from hustler_bracelet_lk.subscription.bracelet_channel_manager import BraceletChannelManager
 from hustler_bracelet_lk.subscription.errors import UnmigratedSubscriptionError, UserAlreadyRemovedError
 from hustler_bracelet_lk.subscription.subscription_manager import SubscriptionManager
@@ -44,7 +45,7 @@ async def approve_command_handler(message: Message, dialog_manager: DialogManage
         telegram_id=user.telegram_id
     )
 
-    bracelet_channel_manager = BraceletChannelManager(user, message.bot)
+    bracelet_channel_manager = BraceletChannelManager(user)
     subscription_manager = SubscriptionManager(user, bracelet_channel_manager, session)
     transaction_manager = TransactionManager(user, session)
 
@@ -52,6 +53,12 @@ async def approve_command_handler(message: Message, dialog_manager: DialogManage
         await message.answer('этот белый не подавал заявку')
 
     transaction = all_user_transactions[0]
+    transaction_status = await transaction.awaitable_attrs.status
+
+    if transaction_status != TransactionStatus.PENDING:
+        await message.answer(f'юзера уже отработали: {transaction_status}')
+        return
+
     await transaction_manager.approve_transaction(transaction)
 
     if await subscription_manager.get_user_subscription():
@@ -104,6 +111,11 @@ async def decline_command_handler(message: Message, dialog_manager: DialogManage
         await message.answer('этот белый не подавал заявку')
 
     transaction = all_user_transactions[0]
+
+    if await transaction.awaitable_attrs.status != TransactionStatus.PENDING:
+        await message.answer('юзера уже отработали')
+        return
+
     await transaction_manager.decline_transaction(transaction)
     await message.answer('обломали этого мэнчика')
     await message.bot.send_message(
