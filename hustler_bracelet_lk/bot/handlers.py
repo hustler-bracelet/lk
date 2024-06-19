@@ -55,10 +55,6 @@ async def approve_command_handler(message: Message, dialog_manager: DialogManage
     transaction = all_user_transactions[0]
     transaction_status = await transaction.awaitable_attrs.status
 
-    if transaction_status != TransactionStatus.PENDING:
-        await message.answer(f'юзера уже отработали: {transaction_status}')
-        return
-
     await transaction_manager.approve_transaction(transaction)
 
     if await subscription_manager.get_user_subscription():
@@ -111,10 +107,6 @@ async def decline_command_handler(message: Message, dialog_manager: DialogManage
         await message.answer('этот белый не подавал заявку')
 
     transaction = all_user_transactions[0]
-
-    if await transaction.awaitable_attrs.status != TransactionStatus.PENDING:
-        await message.answer('юзера уже отработали')
-        return
 
     await transaction_manager.decline_transaction(transaction)
     await message.answer('обломали этого мэнчика')
